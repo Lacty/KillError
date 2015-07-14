@@ -14,20 +14,22 @@ public:
     Dead
   };
 
-protected:
-  std::string name;
-  State state;
-
-public:
   Object() : state(State::Awake) {}
 
-  bool isAwake() { return state == State::Awake ? true : false; }
-  bool isActive() { return state == State::Active ? true : false; }
-  bool isDead() { return state == State::Dead ? true : false; }
+  // ? :　で見なくてもいい。不安なら()で囲う事。
+  bool isAwake() { return state == State::Awake; }
+  bool isActive() { return state == State::Active; }
+  bool isDead() { return state == State::Dead; }
 
   std::string getName() { return name; }
 
   virtual void update() {};
+
+// public -> protected -> publicとアクセス演算子が変わっていたので修正
+protected:
+	std::string name;
+	State state;
+
 };
 
 class Item : public Object {
@@ -46,9 +48,12 @@ int main() {
   std::map<std::string, std::shared_ptr<Object>> map;
   std::list<std::shared_ptr<Object>> list;
 
-  std::shared_ptr<Item> item;
-  item = std::make_shared<Item>();
-  if (item->isActive()) { std::cout << "item init" << std::endl; }
+  std::shared_ptr<Item> item = std::make_shared<Item>();
+
+  if (item->isActive())
+  {
+	  std::cout << "item init" << std::endl;
+  }
 
   map.emplace(item->getName(), item);
   list.emplace_back(item);
@@ -58,20 +63,24 @@ int main() {
     std::cout << it->second->getName() << " in map" << std::endl;
   }
 
-
-  //-------- クソコードはこちら ----------//
+  std::cout << "list size : " << list.size() << std::endl;
+  std::cout << "for each Start !" << std::endl;
   for (auto& it : list) {
     it->update();
-    //list.remove_if([](std::weak_ptr<Object> obj) { return obj.lock()->isDead(); });
   }
-  //------------------------------------//
+
+  std::cout << "for each End !" << std::endl;
+
+  //for each 処理の内部で呼ばない事。
+  list.remove_if([](std::weak_ptr<Object> obj) { return obj.lock()->isDead(); });
+ 
+  std::cout << "list size : " << list.size() << std::endl;
+
 
   {
     auto it = map.find("item");
     map.erase(it);
   }
-
-  list.remove_if([](std::weak_ptr<Object> obj) { return obj.lock()->isDead(); });
 
   if (item->isDead()) { std::cout << "item dead" << std::endl; }
 

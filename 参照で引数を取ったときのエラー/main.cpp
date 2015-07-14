@@ -36,7 +36,7 @@ int main(){
   Test01 test01;
   Test02 test02;
 
-  test02.copy(test01.getX()); // err
+  test02.copy(const test01.getX()); // err
 
   // initial value of reference to non_const must be an lvalue
   // const型をもたないリファレンスの初期値は左辺値でなければなりません
